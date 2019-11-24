@@ -74,7 +74,7 @@ def get_anchors(anchors_path):
     with open(anchors_path) as f:
         anchors = f.readline()
     anchors = np.array(anchors.split(','), dtype=np.float32)
-    return anchors.reshape(3, 3, 2)
+    return anchors.reshape(6, 2)
 
 
 def image_preporcess(image, target_size, gt_boxes=None):

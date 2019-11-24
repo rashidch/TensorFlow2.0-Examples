@@ -48,3 +48,21 @@ def darknet53(input_data):
     return route_1, route_2, input_data
 
 
+def darknet_tiny(input_data):
+    
+    x = common.conv2d(input_layer=input_data, filter_shape=(3,3,3,16))
+    x = common.max_pool(x) # 208x208
+    x = common.conv2d(input_layer=x, filter_shape=(3,3,16,32))
+    x = common.max_pool(x) # 104x104
+    x = common.conv2d(input_layer=x, filter_shape=(3,3,32,64))
+    x = common.max_pool(x) # 52x52
+    x = common.conv2d(input_layer=x, filter_shape=(3,3,64,128))
+    x = common.max_pool(x) # 26x26
+    route_1 = x # skip connection
+    x = common.conv2d(input_layer=x, filter_shape=(3,3,128,256))
+    x = common.max_pool(x) #13x13
+    x = common.conv2d(input_layer=x, filter_shape=(3,3,256,512))
+    x = tf.keras.layers.MaxPool2D(pool_size=(2,2), strides=1, padding='same')(x) #13x13
+    route_2 = common.conv2d(input_layer=x, filter_shape=(3,3,512, 1024))
+
+    return route_1, route_2

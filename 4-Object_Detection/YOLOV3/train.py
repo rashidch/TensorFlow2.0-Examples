@@ -19,7 +19,7 @@ import tensorflow as tf
 import core.utils as utils
 from tqdm import tqdm
 from core.dataset import Dataset
-from core.yolov3 import YOLOv3, decode, compute_loss
+from core.yolov3 import YOLOv3, decode, compute_loss, YOLOV3_TINY
 from core.config import cfg
 
 trainset = Dataset('train')
@@ -30,7 +30,7 @@ warmup_steps = cfg.TRAIN.WARMUP_EPOCHS * steps_per_epoch
 total_steps = cfg.TRAIN.EPOCHS * steps_per_epoch
 
 input_tensor = tf.keras.layers.Input([416, 416, 3])
-conv_tensors = YOLOv3(input_tensor)
+conv_tensors = YOLOV3_TINY(input_tensor)
 
 output_tensors = []
 for i, conv_tensor in enumerate(conv_tensors):
@@ -49,7 +49,7 @@ def train_step(image_data, target):
         giou_loss=conf_loss=prob_loss=0
 
         # optimizing process
-        for i in range(3):
+        for i in range(2):
             conv, pred = pred_result[i*2], pred_result[i*2+1]
             loss_items = compute_loss(pred, conv, *target[i], i)
             giou_loss += loss_items[0]

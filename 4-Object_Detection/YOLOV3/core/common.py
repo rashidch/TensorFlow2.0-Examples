@@ -56,3 +56,27 @@ def residual_block(input_layer, input_channel, filter_num1, filter_num2):
 def upsample(input_layer):
     return tf.image.resize(input_layer, (input_layer.shape[1] * 2, input_layer.shape[2] * 2), method='nearest')
 
+def conv2d(input_layer, filter_shape, downsample=False, activativation=True, Bn= True):
+    if downsample:
+        input_layer = tf.keras.layers.ZeroPadding2D(((1,0),(1,0)))(input_layer)
+        padding= 'valid'
+        strides = 2
+    else:
+        strides=1
+        padding = 'same'
+        
+    conv = tf.keras.layers.Conv2D(filters=filter_shape[-1], kernel_size=filter_shape[0], strides=strides,
+                                    padding= padding, use_bias= not Bn, 
+                                    kernel_initializer= tf.random_normal_initializer(stddev=0.01),
+                                    kernel_regularizer=tf.keras.regularizers.l2(0.0005), 
+                                    bias_initializer= tf.constant_initializer(0.))(input_layer)
+
+    if Bn: conv = BatchNormalization()(conv)
+    if activativation == True: conv = tf.nn.leaky_relu(conv, alpha=0.1)
+    return conv
+
+
+def max_pool(input_tensor):
+        
+    return tf.keras.layers.MaxPool2D(pool_size=(2,2), strides=2, padding='same')(input_tensor)
+      

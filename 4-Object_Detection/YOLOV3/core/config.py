@@ -29,6 +29,17 @@ __C.YOLO.STRIDES              = [8, 16, 32]
 __C.YOLO.ANCHOR_PER_SCALE     = 3
 __C.YOLO.IOU_LOSS_THRESH      = 0.5
 
+# Yolov3_Tiny Options
+__C.YOLO_Tiny                       = edict()
+
+# Set the class name
+__C.YOLO_Tiny.CLASSES = "./data/classes/yymnist.names"
+__C.YOLO_Tiny.ANCHORS = "./data/anchors/yolov3_tiny_COCO_anchors.txt"
+__C.YOLO_Tiny.STRIDES = [16,32]
+__C.YOLO_Tiny.ANCHOR_PER_SCALE = 3
+__C.YOLO_Tiny.IOU_LOSS_THRESH = 0.5
+
+
 # Train options
 __C.TRAIN                     = edict()
 

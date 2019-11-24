@@ -19,10 +19,36 @@ import core.backbone as backbone
 from core.config import cfg
 
 
-NUM_CLASS       = len(utils.read_class_names(cfg.YOLO.CLASSES))
-ANCHORS         = utils.get_anchors(cfg.YOLO.ANCHORS)
-STRIDES         = np.array(cfg.YOLO.STRIDES)
-IOU_LOSS_THRESH = cfg.YOLO.IOU_LOSS_THRESH
+NUM_CLASS       = len(utils.read_class_names(cfg.YOLO_Tiny.CLASSES))
+ANCHORS         = utils.get_anchors(cfg.YOLO_Tiny.ANCHORS)
+STRIDES         = np.array(cfg.YOLO_Tiny.STRIDES)
+IOU_LOSS_THRESH = cfg.YOLO_Tiny.IOU_LOSS_THRESH
+
+def YOLOV3_TINY(input_layer):
+    #call darknet_tiny
+    route_1, route_2 = backbone.darknet_tiny(input_data=input_layer)
+    #call yolov3_tiny_block
+    route_3, mobj_branch = YOLOV3_TINY_block(route_2, 256)
+    #get feature map for 13x13x512 tensor
+    conv_mbbox = common.conv2d(mobj_branch, filter_shape=(1,1,512, 3*(NUM_CLASS+5)), activativation=False, Bn=False)
+    
+    route_3 = common.conv2d(input_layer= route_3, filter_shape=(1,1,256,128))
+    route_3 = common.upsample(input_layer=route_3)
+    sobj_branch = tf.concat([route_3,route_1], axis=-1) 
+
+    conv_sbbox = common.conv2d(sobj_branch, filter_shape=(1,1,256, 3*(NUM_CLASS+5)), activativation=False, Bn=False)
+
+    return conv_sbbox, conv_mbbox
+
+def YOLOV3_TINY_block(input_data, filters):
+
+    net = common.conv2d(input_layer=input_data, filter_shape=(1,1,1024,filters))
+
+    route = net # 13x13x256
+
+    net = common.conv2d(input_layer=net, filter_shape=(3,3,filters,filters*2)) # 13x13x512
+
+    return route, net
 
 def YOLOv3(input_layer):
     route_1, route_2, conv = backbone.darknet53(input_layer)
